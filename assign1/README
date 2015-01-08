@@ -1,0 +1,16 @@
+README file for Assignment #1 for CS3130
+
+Author: Colby Garland
+ID#   : 5034957
+
+Contains 4 directories, each directory containing one python script.
+
+To run: cd into each appropiate directory and type 'python3 <file.py>' where file.py is the file in the directory, which are specified below.
+
+Part1: contains the sum2.py file, which adds integers, counts them, adds them together and tells the mean.
+Part2: contains the username.py file, which generates a username based on a text file, which is included as "test".
+Part3: contains the http.py file
+Part4: contains the rawsocket.py file
+
+Github URL: https://github.com/colbygarland/cs3130_lab1.git
+
