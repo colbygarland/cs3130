@@ -7,12 +7,12 @@
 import database
 
 def main():
-    print_menu()
+    input_menu()
    
 
 #Prints the menu
 def print_menu():
-    print("Employee FMS - Main Menu\n")
+    print("----------Employee FMS - Main Menu----------\n")
 
     print("Select one of the following:\n")
 
@@ -23,11 +23,11 @@ def print_menu():
     print("  5) Quit\n")
 
     print("Option: ")
-    input_menu()
 
 #Receives the input and deals with it properly
 def input_menu():
     while True:
+            print_menu()
             numIn = input()
             if numIn:
                 try:
@@ -45,8 +45,7 @@ def input_menu():
                         database.display_all()
                         continue
                     elif numIn == 5:
-                        database.quit()
-                        continue
+                        break
                     else:
                         print("Option not valid - try again")
                         continue
