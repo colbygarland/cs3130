@@ -1,0 +1,30 @@
+README for the database lab for CS3130.
+--
+--
+Author: Colby Garland
+ID#   : 5034957
+--
+--
+Purpose: Create an employee database using a file as the database. Must be able to:
+         -create a new employee
+         -search for an employee
+         -remove an employee 
+         -display the entire database
+         -quit the program
+--
+--
+Git URL: https://github.com/colbygarland/cs3130
+--
+--
+Project is under the "lab1" directory in the git repository above.
+--
+--
+--
+Weaknesses:
+	1. You must have a file called "database" in the same directory as the program.
+	2. The remove an employee function currently does not work.
+--
+--
+To run: type "python3 main.py" 
+--
+--
