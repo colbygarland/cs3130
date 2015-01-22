@@ -16,7 +16,8 @@ Project is under the "frequencyLab" directory in the git repository above.
 --
 --
 Weaknesses:
-
+	1. When dealing with large words past the limit, it cuts the word off but adds the rest as
+           a new word
 --
 --
 To run: type "python3 main.py" 
