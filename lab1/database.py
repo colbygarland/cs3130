@@ -13,6 +13,7 @@ def add_employee():
         print("\nEnter a user id, first name, last name and department as so:")
         print("    userID:fname:lname:department    \n")
 
+        print("> ", end="")
         record = input()
 
         userID, fname, lname, dept = record.split(":")
@@ -47,7 +48,7 @@ def search_employee():
 
     while True:
         check = False
-        print("Enter an ID to search for:")
+        print("Enter an ID to search for: ", end="")
         try:
             ID = input()
             ID = int(ID)
@@ -83,7 +84,7 @@ def remove_employee():
    
     while True:
         deleteOkay = False
-        print("Enter the Employee ID to remove:")
+        print("Enter the Employee ID to remove: ", end="")
         try:
             ID = input()
             ID = int(ID)
@@ -103,6 +104,7 @@ def remove_employee():
         if deleteOkay:
             print("Employee found - Are you sure you wish to delete?")
             print("Enter 'y' for yes, 'n' to return to Main Menu.")
+            print("> ", end="")
             yes = input()
             if yes[0] == 'n' or yes[0] == 'N':
                 break
