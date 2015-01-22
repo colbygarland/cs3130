@@ -22,7 +22,7 @@ def print_menu():
     print("  4) Display entire employee FMS")
     print("  5) Quit\n")
 
-    print("Option: ")
+    print("Option: ", end="")
 
 #Receives the input and deals with it properly
 def input_menu():
