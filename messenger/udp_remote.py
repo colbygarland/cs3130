@@ -3,7 +3,7 @@
 # https://github.com/brandon-rhodes/fopnp/blob/m/py3/chapter02/udp_remote.py
 # UDP client and server for talking over the network
 
-import argparse, random, socket, sys
+import argparse, random, socket, sys, main 
 
 MAX_BYTES = 65535
 
@@ -11,13 +11,19 @@ def server(interface, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((interface, port))
     print('Listening at', sock.getsockname())
+
     while True:
         data, address = sock.recvfrom(MAX_BYTES)
         text = data.decode('ascii')
 
         print('The client at {} says {!r}'.format(address, text))
+        command = text
 
-        command, name = text.split(" ", 1)
+        if text.isalpha() == True:
+            pass
+        else:
+            command, name = text.split(" ", 1)
+
 
        # SIGNIN COMMAND
         if command == "signin":
@@ -25,21 +31,26 @@ def server(interface, port):
             # searches to see if person is in the system
             inDatabase = logOn(name)
             if inDatabase == True:
-                message = name + " is in the database"
+                message = "Welcome to the chatroom, " + name
                 # set the status to online               
                 setStatusOn(name)
             else:
-                message = name + " is not in the database"
+                message = name + " is not authorized to be in the chatroom"
 
        # SIGNOFF COMMAND
-        elif command == "signoff":
+        elif command == "signout":
             print("command = " + command)
             setStatusOff(name)
             message = "GoodBye"
 
        # WHOISON COMMAND
         elif command == "whoison":
-            print("Doesn't work.\n")
+            listOfNames = whoIsOn()
+            length = len(listOfNames)
+            message = ""
+            
+            for i in listOfNames:
+                message = message + "\n" + listOfNames[i]
 
        # SEND COMMAND
         elif command == "send":
@@ -58,12 +69,15 @@ def client(hostname, port):
     hostname = sys.argv[2]
     sock.connect((hostname, port))
 
-    print('Client socket name is {}'.format(sock.getsockname()))
-    delay = 0.1 # seconds
+    conditionSetter = 0
+
+    # Print the main screen
+    main.beginningScreen()
 
     text = input()
     text = text.lower()
 
+    delay = 0.1 # seconds
     data = text.encode('ascii')
 
     while True:
@@ -77,7 +91,7 @@ def client(hostname, port):
                 raise RuntimeError('Not currently accepting sign-ins') from exc
         else:
             break # we are done, and can stop looping
-    print('The server says {!r}'.format(data.decode('ascii')))
+    print(data.decode('ascii'))
 
 # logOn(name) checks with the name passed to it to see if user
 # is in the database or not
@@ -121,19 +135,22 @@ def setStatusOff(name):
         inoutfile.truncate()
         inoutfile.writelines(lines)
 
-
-
-
-
 # Prints out all the names that are online!!
 def whoIsOn():
 
     inFile = open("database", "r")
+    names = []
+
     for rec in inFile:
         status, username = rec.split(":", 1)
 
-        #if status == "on":
-            
+        if status == "on":
+            names.append(rec)
+
+    for rec in names:
+        print(rec)
+
+    return names
 
 
 

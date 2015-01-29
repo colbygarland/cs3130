@@ -5,7 +5,7 @@
     Author: Colby Garland 
     ID#   : 5034957 """
 
-import udp_remote
+
 
 def main():
     beginningScreen()
@@ -18,22 +18,20 @@ def beginningScreen():
     print("Welcome to MMS")
     print("------------------------------------")
     print("The following commands are supported:")
-    print("    signin <username>")
-    print("    whoIsOn")
-    print("    send <username> <message>")
-    print("    signout")
+    print("    1.signin <username>")
+    print("    2.whoIsOn")
+    print("    3.send <username> <message>")
+    print("    4.signout <username>")
+    print("> ", end="")
 
 
 # Accepts the input to determine what to do
-def input_menu():
+#def input_menu():
 
-    while True:
-        print("> ", end="")
-        text = input()
-        text = text.lower()
+   # while True:
+    
         
             
 
 
 
-main()
