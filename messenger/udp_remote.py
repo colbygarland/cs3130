@@ -40,8 +40,12 @@ def server(interface, port):
        # SIGNOFF COMMAND
         elif command == "signout":
             print("command = " + command)
-            setStatusOff(name)
-            message = "GoodBye"
+            inDatabase = logOn(name)
+            if inDatabase == True:
+                setStatusOff(name)
+                message = "GoodBye"
+            else:
+                message = name + " is not authorized to be in the chatroom"
 
        # WHOISON COMMAND
         elif command == "whoison":
