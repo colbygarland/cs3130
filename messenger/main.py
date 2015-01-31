@@ -17,11 +17,12 @@ def beginningScreen():
     print("--")
     print("Welcome to MMS")
     print("------------------------------------")
-    print("The following commands are supported:")
+    print("The following commands are supported:\n")
     print("    1.signin <username>")
     print("    2.whoIsOn")
     print("    3.send <username> <message>")
-    print("    4.signout <username>")
+    print("    4.signout <username>\n")
+    print("Enter a command")
     print("> ", end="")
 
 

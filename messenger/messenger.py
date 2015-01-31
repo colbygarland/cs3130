@@ -98,10 +98,9 @@ def client(hostname, port):
         sock.settimeout(delay)
         try:
             data = sock.recv(MAX_BYTES)
-        except socket.timeout as exc:
-            delay *= 2 # wait even longer for the next request
-            if delay > 2.0:
-                raise RuntimeError('Not currently accepting sign-ins') from exc
+        except (ConnectionRefusedError, socket.timeout):
+            print("Server currently not up")
+            sys.exit(0)
         else:
             break # we are done, and can stop looping
     print(data.decode('ascii'))
