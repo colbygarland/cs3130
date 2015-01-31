@@ -22,7 +22,10 @@ def server(interface, port):
         if text.isalpha() == True:
             pass
         else:
-            command, name = text.split(" ", 1)
+            try:
+                command, name = text.split(" ", 1)
+            except ValueError:
+                print("User entered incorrect command")
 
 
        # SIGNIN COMMAND
@@ -66,8 +69,11 @@ def server(interface, port):
         else:
             print("Unrecognized command")
         
-
-        sock.sendto(message.encode('ascii'), address)
+        try:
+            sock.sendto(message.encode('ascii'), address)
+        except UnboundLocalError:
+            print("User didn't enter correct command")
+            message = "Command not recognized"
 
 
 def client(hostname, port):

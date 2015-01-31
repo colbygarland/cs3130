@@ -17,10 +17,10 @@ Project is under the "messenger" directory in the git repository above.
 --
 Weaknesses:
 	1. Does not send messages to anybody
-        2. Does not display who is on
+    2. User picks a command, command executes and then the program ends
 --
 --
-To run the server: type "python3 udp_remote.py server <ip address of machine>"
-To run the client: type "python3 udp_remote.oy client <ip address of machine>" 
+To run the server: type "python3 messenger.py server <ip address of machine>"
+To run the client: type "python3 messenger.py client <ip address of machine>" 
 --
 --
