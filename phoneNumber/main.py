@@ -13,7 +13,10 @@ def main():
 
 """ Prints the menu and accepts input """
 def menu():
-    print("--")
+    print("----------------------------")
+    print("-- Phone Number Generator --")
+    print("-- Press <enter> to Quit  --")
+    print("----------------------------")
 
     while True:
         print("Enter a 10 digit phone number: ", end="")
