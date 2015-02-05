@@ -18,14 +18,18 @@ def server(interface, port):
 
         print('The client at {} says {!r}'.format(address, text))
         command = text
+        txtMessage = ''
 
         if text.isalpha() == True:
             pass
         else:
             try:
-                command, name = text.split(" ", 1)
+                command, name, txtMessage = text.split(" ", 2)
             except ValueError:
-                print("User entered incorrect command")
+                try:
+                    command, name = text.split(" ", 1)
+                except:
+                    print("Invalid command")
 
 
        # SIGNIN COMMAND
@@ -34,9 +38,25 @@ def server(interface, port):
             # searches to see if person is in the system
             inDatabase = logOn(name)
             if inDatabase == True:
-                message = "Welcome to the chatroom, " + name
+                message = "Welcome to the chatroom, " + name + "\n"
                 # set the status to online               
                 setStatusOn(name)
+
+                inFile = open("messages", "r")
+                for rec in inFile:
+                    username, msg = rec.split(":", 1)
+                    if username == name:
+                        message += msg
+                inFile.close()
+
+                searchString = name + ":"
+                with open("messages", "r+") as inoutfile:
+                    lines = [line.replace(searchString, '') for line in inoutfile]
+                    inoutfile.seek(0)
+                    inoutfile.truncate()
+                    inoutfile.writelines(lines)
+
+
             else:
                 message = name + " is not authorized to be in the chatroom"
 
@@ -64,8 +84,30 @@ def server(interface, port):
 
        # SEND COMMAND
         elif command == "send":
-            print("Doesn't work.\n")
+            # sees if user is in database
+            inDatabase = logOn(name)
+            if inDatabase == True:
+                # sees if user is currently online
+                listOfUsers = whoIsOn()
+                listOfNames = []
 
+                for i in listOfUsers:
+                    status, listOfNames = i.split(":")
+
+                for rec in listOfNames:
+                    if rec == name:
+                        message = txtMessage
+                        break
+                # store message for later consumption
+                inFile = open('messages', 'a')
+                inFile.write(name + ":" + txtMessage + "\n")
+                inFile.close()
+                message = 'User not online, saved message for later'
+            else:
+
+                message = "User is not in database - SEND 303"
+        elif command == '':
+            sys.exit(0)
         else:
             print("Unrecognized command")
         
@@ -180,6 +222,7 @@ def whoIsOn():
         print(rec)
 
     return names
+
 
 
 
