@@ -21,13 +21,16 @@ def menu():
         if num == '':
             break
         else:
+            # regex to parse phone number based on -, , and )
             rx1 = r'(\d{3})[- )]*(\d{3})[- )]*(\d{4})'
 
             if len(num) < 10:
                 print("Sorry phone number needs exactly 10 digits")
             else:
+                # search using the regex above
                 phoneNum = re.search(rx1, num)
                 try:
+                    # put the numbers into appropriate categories for display
                     areaCode, first3, last4 = phoneNum.groups()
                     print("Number is " + "(" + areaCode + ")" + " " + first3 + " " + last4)
                 except AttributeError as err:

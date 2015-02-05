@@ -14,11 +14,6 @@ Git URL: https://github.com/colbygarland/cs3130.git
 Project is under the "phoneNumber" directory in the git repository above.
 --
 --
---
-Weaknesses:
-
---
---
-
+To run: type "python3 main.py" while in the phoneNumber directory 
 --
 --
