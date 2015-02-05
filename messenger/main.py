@@ -23,7 +23,6 @@ def beginningScreen():
     print("    3.send <username> <message>")
     print("    4.signout <username>\n")
     print("Enter a command")
-    print("> ", end="")
 
 
 # Accepts the input to determine what to do

@@ -86,24 +86,41 @@ def client(hostname, port):
 
     # Print the main screen
     main.beginningScreen()
+  
+    while True:  
+ 
+        print("> ", end="")
+        text = input()
+        text = text.lower()
 
-    text = input()
-    text = text.lower()
-
-    delay = 0.1 # seconds
-    data = text.encode('ascii')
-
-    while True:
-        sock.send(data)
-        sock.settimeout(delay)
-        try:
-            data = sock.recv(MAX_BYTES)
-        except (ConnectionRefusedError, socket.timeout):
-            print("Server currently not up")
-            sys.exit(0)
+        if text.isalpha() == True:
+            command = ''
+            pass
         else:
-            break # we are done, and can stop looping
-    print(data.decode('ascii'))
+            try:
+                command, name = text.split(" ", 1)
+            except ValueError:
+                print("User entered incorrect command")
+
+        delay = 0.1 # seconds
+        data = text.encode('ascii')
+
+        while True:
+            sock.send(data)
+            sock.settimeout(delay)
+            try:
+                data = sock.recv(MAX_BYTES)
+            except (ConnectionRefusedError, socket.timeout):
+                print("Server currently not up")
+                sys.exit(0)
+            else:
+                break # we are done, and can stop looping
+        print(data.decode('ascii'))
+
+        if command == 'signout':
+            break
+
+
 
 # logOn(name) checks with the name passed to it to see if user
 # is in the database or not
