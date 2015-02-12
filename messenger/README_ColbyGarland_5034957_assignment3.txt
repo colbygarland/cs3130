@@ -16,8 +16,9 @@ Project is under the "messenger" directory in the git repository above.
 --
 --
 Weaknesses:
-	1. Does not send messages to anybody
-    2. User picks a command, command executes and then the program ends
+	1. Sends messages, but treats every user as if they are offline
+               ie. saves the messages into a file for later consumption
+        2. Messages sent to users can only be one word
 --
 --
 To run the server: type "python3 messenger.py server <ip address of machine>"
