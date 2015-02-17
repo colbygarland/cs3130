@@ -10,40 +10,16 @@ import socket, argparse
 #Paints the add employee page, and then asks user to enter an employee
 def add_employee():
     print("\n----------Employee FMS - Add a new employee----------")
+    message = ""
    
-    while True:
-        success = True
-        #infile = open("database", "r")
-        print("\nEnter a user id, first name, last name and department as so:")
-        print("    userID:fname:lname:department    \n")
+    print("\nEnter a user id, first name, last name and department as so:")
+    print("    userID:fname:lname:department    \n")
 
-        print("> ", end="")
-        record = input()
+    print("> ", end="")
+    message = input()
 
-        userID, fname, lname, dept = record.split(":")
-        userID = int(userID)
+    return message
 
-        for rec in infile:
-            ID, rest = rec.split(":", 1)
-            ID = int(ID)
-            if ID == userID:
-                success = False
-                
-        if success:
-            infile.close()
-            infile = open("database", "a")
-            infile.write(str(userID) + ":" + fname + ":" + lname + ":" + dept + "\n")
-            infile.close()
-            print("\n----Addition Successful.")
-        else:
-            infile.close()
-            print("\nEmployee is already in database.")
-
-        print("Do you wish to add another employee?")
-        print("Enter 'y' for yes, 'n' to return to Main Menu.")
-        addAnother = input()
-        if addAnother[0] == 'n' or addAnother[0] == 'N':
-            break
 
 #Searches for an employee
 def search_employee():
@@ -165,7 +141,35 @@ def client(host, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((host,port))
 
-    input_menu()
+    message = ""
+
+    while True:
+        print_menu()
+        numIn = input()
+        if numIn:
+            try:
+                numIn = int(numIn)
+                if numIn == 1:
+                    message = add_employee()
+                    encoded = bytes(message, 'utf-8')
+                    sock.sendall(encoded)
+                    continue
+                elif numIn == 2:
+                    search_employee()
+                    continue
+                elif numIn == 3:
+                    remove_employee()
+                    continue
+                elif numIn == 4:
+                    display_all()
+                    continue
+                elif numIn == 5:
+                    break
+                else:
+                    print("Option not valid - try again")
+                    continue
+            except ValueError as err:
+                print("Option not a number - try again")
 
 
 
@@ -199,19 +203,6 @@ def server(interface, port):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 #Prints the menu
 def print_menu():
     print("----------Employee FMS - Main Menu----------\n")
@@ -226,33 +217,8 @@ def print_menu():
 
     print("Option: ", end="")
 
-#Receives the input and deals with it properly
-def input_menu():
-    while True:
-            print_menu()
-            numIn = input()
-            if numIn:
-                try:
-                    numIn = int(numIn)
-                    if numIn == 1:
-                        add_employee()
-                        continue
-                    elif numIn == 2:
-                        search_employee()
-                        continue
-                    elif numIn == 3:
-                        remove_employee()
-                        continue
-                    elif numIn == 4:
-                        display_all()
-                        continue
-                    elif numIn == 5:
-                        break
-                    else:
-                        print("Option not valid - try again")
-                        continue
-                except ValueError as err:
-                    print("Option not a number - try again")
+
+    
                 
 
 
