@@ -23,6 +23,7 @@ Project is under the "tcpDatabase" directory in the git repository above.
 --
 Weaknesses:
 	1. You must have a file called "database" in the same directory as the program.
+    2. When returning all the employees in the database, it is one big string.
 --
 --
 To run: type "python3 main.py client <ip address of machine>" for the client

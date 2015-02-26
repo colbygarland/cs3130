@@ -4,19 +4,21 @@
    Author: Colby Garland id# 5034957
    Employee Database TCP"""
 
-import socket, argparse
+import socket, argparse, struct, sys
+End = '.'
 
 
 #Paints the add employee page, and then asks user to enter an employee
 def add_employee():
     print("\n----------Employee FMS - Add a new employee----------")
-    message = ""
+    message = "+200:"
    
     print("\nEnter a user id, first name, last name and department as so:")
     print("    userID:fname:lname:department    \n")
 
     print("> ", end="")
-    message = input()
+    message += input()
+    message += End
 
     return message
 
@@ -24,8 +26,6 @@ def add_employee():
 #Searches for an employee
 def search_employee():
     print("\n----------Employee FMS - Searching for Employee----------")
-    
-
     while True:
         check = False
         print("Enter an ID to search for: ", end="")
@@ -35,28 +35,14 @@ def search_employee():
         except ValueError as err:
             print("EMPLOYEE ID MUST BE A NUMBER.")
             continue
- 
-        infile = open("database", "r")
 
-        for rec in infile:
-            userID, rest = rec.split(":", 1)
-            userID = int(userID)
-            if ID == userID:
-                fname, lname, dept = rest.split(":")
-                print("\nUser:" + str(ID) + " " + fname + " " + lname + " " + dept)
-                check = True
-                break
+        message = '+300:' + str(ID) + End
+        break
 
-        if check == False:
-           print("\nUserID:" + str(ID) + " does not exist.\n")
+    return message
+       
 
-        print("Would you like to search for another employee?")
-        print("Enter 'y' for yes, 'n' to return to Main Menu.")
-        print("> ", end = "")
-        addAnother = input()
-        if addAnother[0] == 'n' or addAnother[0] == 'N':
-            infile.close()
-            break
+  
 
 #Removes an employee specified by the user id
 def remove_employee():
@@ -73,63 +59,31 @@ def remove_employee():
             print("Employee ID must be a number.")
             continue
 
-        f = open("database", "r")
-        for rec in f:
-            searchString = rec
-            searchID, rest = rec.split(":",1)
-            searchID = int(searchID)
-            if searchID == ID:
-                deleteOkay = True
-                break
-        f.close()
+        message = '+400:' + str(ID) + End
+        break
 
-        if deleteOkay:
-            print("Employee found - Are you sure you wish to delete?")
-            print("Enter 'y' for yes, 'n' to return to Main Menu.")
-            print("> ", end="")
-            yes = input()
-            if yes[0] == 'n' or yes[0] == 'N':
-                break
-
-        if deleteOkay:
-            with open("database", "r+") as inoutfile:
-                lines = [line.replace(searchString, "") for line in inoutfile]
-                inoutfile.seek(0)
-                inoutfile.truncate()
-                inoutfile.writelines(lines)
-            break
-        else:
-            print("Employee ID not in system - cannot delete")
-            break
-                
-
-
-#Prints the database 
-def display_all():
-    inline = open("database", "r")
-    emptiness = True
-    print("\nEmployees in the database:\n")
-    for rec in inline:
-        ID, fname, lname, dept = rec.split(":")
-        print(ID, fname, lname, dept, end="")
-        emptiness = False
-
-    if emptiness:
-        print("Employee database is currently empty.\n")
-
-    inline.close()
-    print("\n")
+    return message
 
 
 
-def recvall(sock):
-    data = b''
+def recvall(the_socket):
+    total_data=[];data=''
     while True:
-        more = sock.recv(1)
-        if more == '.':
-            break
-        data += more
-    return data
+            data=the_socket.recv(8192)
+            data = data.decode('utf-8')
+            if End in data:
+                total_data.append(data[:data.find(End)])
+                break
+            total_data.append(data)
+            if len(total_data)>1:
+                #check if end_of_data was split
+                last_pair=total_data[-2]+total_data[-1]
+                if End in last_pair:
+                    total_data[-2]=last_pair[:last_pair.find(End)]
+                    total_data.pop()
+                    break
+    return ''.join(total_data)
+
 
 
 
@@ -138,8 +92,7 @@ def client(host, port):
 
    # pg 66 getaddrinfo not web, 2015 in book
 
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((host,port))
+
 
     message = ""
 
@@ -150,20 +103,49 @@ def client(host, port):
             try:
                 numIn = int(numIn)
                 if numIn == 1:
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sock.connect((host,port))
                     message = add_employee()
                     encoded = bytes(message, 'utf-8')
                     sock.sendall(encoded)
+                    reply = recvall(sock)
+                    sock.close()
+                    print(repr(reply))
                     continue
                 elif numIn == 2:
-                    search_employee()
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sock.connect((host,port))
+                    message = search_employee()
+                    encoded = bytes(message, 'utf-8')
+                    sock.sendall(encoded)
+                    reply = recvall(sock)
+                    sock.close()
+                    print(repr(reply))
                     continue
                 elif numIn == 3:
-                    remove_employee()
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sock.connect((host,port))
+                    message = remove_employee()
+                    encoded = bytes(message, 'utf-8')
+                    sock.sendall(encoded)
+                    reply = recvall(sock)
+                    sock.close()
+                    print(repr(reply))
                     continue
                 elif numIn == 4:
-                    display_all()
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sock.connect((host,port))
+                    message = '+500.'
+                    encoded = bytes(message, 'utf-8')
+                    sock.sendall(encoded)
+                    reply = recvall(sock)
+                    print(repr(reply))
+                    sock.close()
                     continue
                 elif numIn == 5:
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sock.connect((host,port))
+                    sock.close()
                     break
                 else:
                     print("Option not valid - try again")
@@ -190,14 +172,90 @@ def server(interface, port):
         print('Accepted a connection from', sockname)
         message = recvall(sc)
         print('Message = ', repr(message))
-
         
+        if '+200' in message: # add employee!!
+            success = True
+            code, userID, fname, lname, dept = message.split(':')
+            print('Code   = ' + code)
+            print('UserID = ' + userID)
+            print('Fname  = ' + fname)
+            print('Lname  = ' + lname)
+            print('Dept   = ' + dept)
 
+            infile = open('database', 'r')
+            for rec in infile:
+                ID, rest = rec.split(':', 1)
+                if ID == userID:
+                    success = False
+                    infile.close()
+                    break
+            
+            if success:
+                infile = open('database', 'a')
+                infile.write(userID + ':' + fname + ':' + lname + ':' + dept + '\n')
+                infile.close()
+                sc.sendall(b'----Addition Successful.')
+            else:
+                sc.sendall(b'Employee is already in database.')
 
+        elif '+300' in message: # search employee
+            check = False
+            code, ID = message.split(':', 1)
+            infile = open('database', 'r')
+         
+            for rec in infile:
+                userID, rest = rec.split(':', 1)
+                if ID == userID:
+                    fname, lname, dept = rest.split(':')
+                    sc.sendall(b'UserID: ' + bytes(fname, 'utf-8') + b' ' + bytes(lname, 'utf-8') + b' ' + bytes(dept, 'utf-8') + b'.')
+                    check = True
+                    break
 
+            if check == False:
+                sc.sendall(b'User does not exist.')
 
+        elif '+400' in message: # remove employee
+            searchString = ''
+            deleteOkay = False
+            code, ID = message.split(':', 1)
+            infile = open('database', 'r')
+          
+            for rec in infile:
+                searchString = rec
+                searchID, rest = rec.split(':', 1)
+                if searchID == ID:
+                    deleteOkay = True
+                    sc.sendall(b'Employee deleted.')
+                    infile.close()
+                    break
 
-        sc.sendall(b'Farewell, client')
+            if deleteOkay:
+                with open("database", "r+") as inoutfile:
+                    lines = [line.replace(searchString, "") for line in inoutfile]
+                    inoutfile.seek(0)
+                    inoutfile.truncate()
+                    inoutfile.writelines(lines)
+            else:
+                sc.sendall(b'Employee ID not in system - cannot delete.')
+
+        elif '+500' in message: # display all employees
+            inline = open("database", "r")
+            emptiness = True
+            message = 'Employees in Database:\n'
+            for rec in inline:
+                ID, fname, lname, dept = rec.split(":")
+                message += ID + fname + lname + dept + '\n'
+                emptiness = False
+
+            if emptiness:
+                message = b'Employee database is currently empty.'
+            else:
+                message += End
+
+            inline.close()
+            sc.sendall(bytes(message, 'utf-8'))            
+
+        #sc.sendall(b'Farewell, client.')
         sc.close()
         print('Reply sent, socket closed')
 
@@ -217,9 +275,6 @@ def print_menu():
 
     print("Option: ", end="")
 
-
-    
-                
 
 
 if __name__ == '__main__':
