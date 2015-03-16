@@ -4,8 +4,9 @@
    Author: Colby Garland id# 5034957
    Employee Database TCP"""
 
-import socket, argparse, struct, sys
+import argparse, socket, struct, sys, ssl
 End = '.'
+ENCRYPTION_FLAG = 0 # 0 for non-encrypted communication, 1 for encryption
 
 
 #Paints the add employee page, and then asks user to enter an employee
@@ -88,13 +89,13 @@ def recvall(the_socket):
 
 
 # Client side
-def client(host, port):
+def client(host, port, cafile=None):
 
    # pg 66 getaddrinfo not web, 2015 in book
 
-
-
     message = ""
+    if ENCRYPTION_FLAG:
+        context = ssl.create_default_context(purpose=Purpose.SERVER_AUTH, cafile=None)
 
     while True:
         print_menu()
@@ -103,15 +104,27 @@ def client(host, port):
             try:
                 numIn = int(numIn)
                 if numIn == 1:
-                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    sock.connect((host,port))
-                    message = add_employee()
-                    encoded = bytes(message, 'utf-8')
-                    sock.sendall(encoded)
-                    reply = recvall(sock)
-                    sock.close()
-                    print(repr(reply))
-                    continue
+                    if ENCRYPTION_FLAG == 0:
+                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        sock.connect((host,port))
+                        message = add_employee()
+                        encoded = bytes(message, 'utf-8')
+                        sock.sendall(encoded)
+                        reply = recvall(sock)
+                        sock.close()
+                        print(repr(reply))
+                        continue
+                    else:
+                        raw_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        raw_sock.connect((host,port))
+                        ssl_sock = context.wrap_socket(raw_sock, server_hostname=host)
+                        message = add_employee()
+                        encoded = bytes(message, 'utf-8')
+                        ssl_sock.sendall(encoded)
+                        reply = recvall(ssl_sock)
+                        ssl_sock.close()
+                        print(repr(reply))
+                        continue
                 elif numIn == 2:
                     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     sock.connect((host,port))
@@ -158,20 +171,30 @@ def client(host, port):
 
 
 # Server side
-def server(interface, port):
+def server(host, port, certfile=None, cafile=None):
 
+    
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    sock.bind((interface, port))
+    sock.bind((host, port))
     sock.listen(1)
 
     print('Server listening at', sock.getsockname())
     while True:
         print('Waiting to accept a new connection')
-        sc, sockname = sock.accept()
-        print('Accepted a connection from', sockname)
-        message = recvall(sc)
-        print('Message = ', repr(message))
+        if ENCRYPTION_FLAG == 0:
+            sc, sockname = sock.accept()
+            print('Accepted a connection from', sockname)
+            message = recvall(sc)
+            print('Message = ', repr(message)) 
+        else:
+            context = ssl.create_default_context(purpose=Purpose.SERVER_AUTH, cafile=None)
+            context.load_cert_chain(certfile)
+            raw_sock, sockname = sock.accept()
+            ssl_sock = context.wrap_socket(raw_sock, server_side=True)
+            print('Accepted a connection from', sockname)
+            message = recvall(ssl_sock)
+            print('Message = ', repr(message)) 
         
         if '+200' in message: # add employee!!
             success = True
@@ -194,9 +217,15 @@ def server(interface, port):
                 infile = open('database', 'a')
                 infile.write(userID + ':' + fname + ':' + lname + ':' + dept + '\n')
                 infile.close()
-                sc.sendall(b'----Addition Successful.')
+                if ENCRYPTED_FLAG == 0:
+                    sc.sendall(b'----Addition Successful.')
+                else:
+                    ssl_sock.sendall(b'----Addition Successful.')
             else:
-                sc.sendall(b'Employee is already in database.')
+                if ENCRYPTED_FLAG == 0:
+                    sc.sendall(b'Employee is already in database.')
+                else:
+                    ssl_sock.sendall(b'Employee is already in database.')
 
         elif '+300' in message: # search employee
             check = False
@@ -207,12 +236,18 @@ def server(interface, port):
                 userID, rest = rec.split(':', 1)
                 if ID == userID:
                     fname, lname, dept = rest.split(':')
-                    sc.sendall(b'UserID: ' + bytes(fname, 'utf-8') + b' ' + bytes(lname, 'utf-8') + b' ' + bytes(dept, 'utf-8') + b'.')
+                    if ENCRYPTED_FLAG == 0:
+                        sc.sendall(b'UserID: ' + bytes(fname, 'utf-8') + b' ' + bytes(lname, 'utf-8') + b' ' + bytes(dept, 'utf-8') + b'.')
+                    else:
+                        ssl_sock.sendall(b'UserID: ' + bytes(fname, 'utf-8') + b' ' + bytes(lname, 'utf-8') + b' ' + bytes(dept, 'utf-8') + b'.')
                     check = True
                     break
 
             if check == False:
-                sc.sendall(b'User does not exist.')
+                if ENCRYPTED_FLAG == 0:
+                    sc.sendall(b'User does not exist.')
+                else:
+                    ssl_sock.sendall(b'User does not exist.')
 
         elif '+400' in message: # remove employee
             searchString = ''
@@ -225,7 +260,10 @@ def server(interface, port):
                 searchID, rest = rec.split(':', 1)
                 if searchID == ID:
                     deleteOkay = True
-                    sc.sendall(b'Employee deleted.')
+                    if ENCRYPTED_FLAG == 0:
+                        sc.sendall(b'Employee deleted.')
+                    else:
+                        ssl_sock.sendall(b'Employee deleted.')
                     infile.close()
                     break
 
@@ -236,7 +274,10 @@ def server(interface, port):
                     inoutfile.truncate()
                     inoutfile.writelines(lines)
             else:
-                sc.sendall(b'Employee ID not in system - cannot delete.')
+                if ENCRYPTED_FLAG == 0:
+                    sc.sendall(b'Employee ID not in system - cannot delete.')
+                else:
+                    ssl_sock.sendall(b'Employee ID not in system - cannot delete.')
 
         elif '+500' in message: # display all employees
             inline = open("database", "r")
@@ -253,10 +294,16 @@ def server(interface, port):
                 message += End
 
             inline.close()
-            sc.sendall(bytes(message, 'utf-8'))            
+            if ENCRYPTED_FLAG == 0:
+                sc.sendall(bytes(message, 'utf-8')) 
+            else:
+                ssl_sock.sendall(bytes(message, 'utf-8'))
+          
 
-        #sc.sendall(b'Farewell, client.')
-        sc.close()
+        if ENCRYPTED_FLAG == 0:
+            sc.close()
+        else:
+            ssl_sock.close()
         print('Reply sent, socket closed')
 
 
@@ -274,7 +321,6 @@ def print_menu():
     print("  5) Quit\n")
 
     print("Option: ", end="")
-
 
 
 if __name__ == '__main__':
