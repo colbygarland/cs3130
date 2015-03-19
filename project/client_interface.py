@@ -52,7 +52,11 @@ def browse_store(user=''):
         message += '--------------------------------------------------------------------------------'
     allProducts.close()
 
+    message+='\n\n'
+
     return message
+
+
 
 #4. Exit shop
 def exit_store(user=''):
