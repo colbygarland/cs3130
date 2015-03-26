@@ -13,6 +13,7 @@ def menu():
         printMenu()
         market = input()
         if market == '1':
+            scraping.spStock()
             continue
         elif market == '2':
             continue
