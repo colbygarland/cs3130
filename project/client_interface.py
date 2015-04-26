@@ -34,7 +34,7 @@ def client_menu():
     return option
 
 # 1. Browse the Store
-def browse_store(user=''):
+def browse_store(user):
     message = ''
 
     if user != '':
@@ -54,8 +54,19 @@ def browse_store(user=''):
 
     return message
 
+# 2. login prompt username
+def login_prompt_username():
+    message = '--Login'
+    message += '\n--Enter Username: '
+    return message
+
+# 2. login prompt password
+def login_prompt_password():
+    message = '--Enter Password: '
+    return message
+
 #4. Exit shop
-def exit_store(user=''):
+def exit_store(user):
     if user != '':
         message = '--We will miss your business, ' + user + '!'
     else:

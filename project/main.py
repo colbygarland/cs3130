@@ -7,8 +7,9 @@
    Simulate an online store using udp"""
 
 import socket, argparse, sys, client_interface
+
 MAX_BYTES = 65535
-user = ''
+USER = 'guest'
 
 
 def client(hostname, port):
@@ -20,8 +21,11 @@ def client(hostname, port):
 
         optionNumber = client_interface.client_menu()
         if optionNumber == '4':
-            print(client_interface.exit_store(user))
+            print(client_interface.exit_store(USER))
             break
+        if optionNumber == '2':
+            login()
+            
 
         data = optionNumber.encode('ascii')
 
@@ -52,7 +56,7 @@ def server(interface, port):
         print('The client at {} says {!r}'.format(address, text))
 
         if text == '1':
-            message = client_interface.browse_store(user)
+            message = client_interface.browse_store(USER)
         else:
             message = 'default val'
 
@@ -61,6 +65,30 @@ def server(interface, port):
         except UnboundLocalError:
             print("User didn't enter correct command")
             message = "Command not recognized"
+
+def login():
+    print(client_interface.login_prompt_username(), end='')
+    username = input()
+    print(client_interface.login_prompt_password(), end='')
+    password = input()
+
+    correct_user = authenticate(username, password)
+    print(correct_user)
+    if correct_user:
+        USER = username
+        
+   # print('user= ' + USER)
+
+def authenticate(username, password):
+    infile = open("users_database", "r")
+    for users in infile:
+        name, oldPass = users.split(":")
+        oldPass.strip('\n')
+        print(name + ' ' + oldPass)
+        if name == username and oldPass == password:
+            return True
+    infile.close()
+    return False
 
 
 if __name__ == '__main__':
