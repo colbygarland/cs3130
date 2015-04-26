@@ -52,6 +52,8 @@ def browse_store(user):
         message += '--------------------------------------------------------------------------------'
     allProducts.close()
 
+    message+='\n\n'
+
     return message
 
 # 2. login prompt username
